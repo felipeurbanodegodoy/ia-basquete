@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BasketBot Universal - IA Completa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2a5298);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #f8f9fa;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+            position: relative;
+        }
+        
+        /* Header com tema de basquete */
+        .header {
+            background: linear-gradient(to right, #ff7e5f, #feb47b, #ff7e5f);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23ffffff' fill-opacity='0.1' d='M50,0 C22.4,0 0,22.4 0,50 C0,77.6 22.4,100 50,100 C77.6,100 100,77.6 100,50 C100,22.4 77.6,0 50,0 Z M50,90 C27.9,90 10,72.1 10,50 C10,27.9 27.9,10 50,10 C72.1,10 90,27.9 90,50 C90,72.1 72.1,90 50,90 Z'/%3E%3C/svg%3E");
+            background-size: 80px;
+            opacity: 0.2;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .header h1 i {
+            color: #ff5722;
+            animation: bounce 2s infinite;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Área do chat com tema de quadra de basquete */
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f0f0f0;
+            background-image: 
+                linear-gradient(rgba(139, 69, 19, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 69, 19, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(255, 215, 0, 0.1) 50%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .user-message {
+            justify-content: flex-end;
+        }
+        
+        .bot-message {
+            justify-content: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .user-bubble {
+            background: linear-gradient(135deg, #4a90e2, #2a5298);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-bubble {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .bot-bubble::before {
+            content: "🤖";
+            position: absolute;
+            left: -35px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+        }
+        
+        .user-bubble::after {
+            content: "👤";
+            position: absolute;
+            right: -35px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+        }
+        
+        /* Área de entrada com tema de basquete */
+        .input-container {
+            display: flex;
+            padding: 20px;
+            background-color: white;
+            border-top: 2px solid #e0e0e0;
+            position: relative;
+        }
+        
+        .input-container::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #ff7e5f, transparent);
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+        }
+        
+        #user-input:focus {
+            border-color: #ff7e5f;
+            box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+        }
+        
+        #send-btn {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            margin-left: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(255, 126, 95, 0.3);
+        }
+        
+        #send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(255, 126, 95, 0.4);
+        }
+        
+        /* Sugestões com tema de basquete */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 0 20px 20px;
+            background-color: white;
+        }
+        
+        .suggestion {
+            background: linear-gradient(135deg, #ffd166, #ff9e5f);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #333;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .suggestion:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .suggestion i {
+            font-size: 12px;
+        }
+        
+        /* Indicador de digitação */
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background-color: white;
+            border-radius: 20px;
+            border-bottom-left-radius: 5px;
+            max-width: 70%;
+            margin-bottom: 15px;
+            align-self: flex-start;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ff7e5f;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        /* Animações */
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                height: 90vh;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 26px;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+            }
+            
+            .bot-bubble::before, .user-bubble::after {
+                display: none;
+            }
+            
+            .suggestions {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .message-bubble {
+                max-width: 90%;
+                padding: 12px 15px;
+            }
+            
+            .suggestion {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+        }
+        
+        /* Efeito de bola de basquete na tela */
+        .basketball {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #ff7e5f, #d2691e);
+            border-radius: 50%;
+            box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .basketball:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            animation: float 15s infinite linear;
+        }
+        
+        .basketball:nth-child(2) {
+            top: 70%;
+            right: 5%;
+            animation: float 18s infinite linear reverse;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+            }
+        }
+        
+        /* Estilo para respostas longas */
+        .long-response {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .long-response::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .long-response::-webkit-scrollbar-thumb {
+            background: #ff7e5f;
+            border-radius: 3px;
+        }
+        
+        .info-tag {
+            display: inline-block;
+            background: #ff7e5f;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="basketball"></div>
+    <div class="basketball"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-basketball-ball"></i>
+                    BasketBot Universal - IA Completa
+                    <i class="fas fa-basketball-ball"></i>
+                </h1>
+                <p>Pergunte QUALQUER COISA - sobre basquete ou qualquer outro assunto!</p>
+            </div>
+        </div>
+        
+        <div class="chat-container" id="chat-container">
+            <div class="message bot-message">
+                <div class="message-bubble bot-bubble">
+                    Olá! Sou o BasketBot Universal, uma IA completa que pode responder QUALQUER pergunta - sobre basquete, ciência, história, tecnologia, ou qualquer outro assunto que você quiser explorar! Como posso ajudar você hoje?
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="suggestions">
+            <button class="suggestion" data-question="Quem foi o jogador mais dominante da história da NBA?">
+                <i class="fas fa-crown"></i> Basquete
+            </button>
+            <button class="suggestion" data-question="Explique a teoria da relatividade de Einstein">
+                <i class="fas fa-atom"></i> Ciência
+            </button>
+            <button class="suggestion" data-question="Qual a história da Segunda Guerra Mundial?">
+                <i class="fas fa-monument"></i> História
+            </button>
+            <button class="suggestion" data-question="Como funciona a inteligência artificial?">
+                <i class="fas fa-robot"></i> Tecnologia
+            </button>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Pergunte QUALQUER COISA...">
+            <button id="send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de IA universal que responde qualquer pergunta
+        class UniversalAI {
+            constructor() {
+                this.knowledgeBase = {
+                    // Conhecimento sobre basquete
+                    basketball: {
+                        "regras": "O basquete é jogado por duas equipes de 5 jogadores. O objetivo é marcar pontos arremessando a bola na cesta do adversário. Cada cesta dentro do arco vale 2 pontos, e fora do arco vale 3 pontos. Lances livres valem 1 ponto cada.",
+                        "nba": "A NBA é a principal liga de basquete profissional da América do Norte, fundada em 1946. Tem 30 times e a temporada vai de outubro a junho.",
+                        "jogadores": "Grandes jogadores: Michael Jordan, LeBron James, Kobe Bryant, Stephen Curry, Magic Johnson, Larry Bird, Kareem Abdul-Jabbar.",
+                        "times": "Times famosos: Lakers, Celtics, Bulls, Warriors, Spurs, Heat. Lakers e Celtics têm 17 títulos cada.",
+                        "história": "Inventado em 1891 por James Naismith. Primeiro jogo com cestas de pêssego e bola de futebol."
+                    },
+                    
+                    // Conhecimento geral
+                    science: {
+                        "física": "A física estuda matéria, energia, espaço e tempo. Inclui mecânica, termodinâmica, eletromagnetismo e física quântica.",
+                        "química": "Ciência que estuda a composição, estrutura e propriedades da matéria, além das transformações durante reações químicas.",
+                        "biologia": "Estuda a vida e organismos vivos, incluindo estrutura, função, crescimento, origem, evolução e distribuição.",
+                        "astronomia": "Ciência que estuda corpos celestes e fenômenos que se originam fora da atmosfera terrestre.",
+                        "einstein": "Albert Einstein desenvolveu a teoria da relatividade e E=mc². Prêmio Nobel de Física de 1921."
+                    },
+                    
+                    history: {
+                        "segunda guerra": "Conflito global de 1939-1945 entre Aliados e Eixo. Causou ~70-85 milhões de mortes. Terminou com bombas atômicas no Japão.",
+                        "brasil": "Descoberto em 1500 por Pedro Álvares Cabral. Independência em 1822. República em 1889. Atualmente é uma democracia federal.",
+                        "roma": "Império Romano durou de 27 a.C. a 476 d.C. Influenciou direito, arquitetura, língua e cultura ocidental.",
+                        "egito": "Civilização antiga no vale do Nilo com mais de 3000 anos de história. Conhecida por pirâmides, faraós e hieróglifos."
+                    },
+                    
+                    technology: {
+                        "ia": "Inteligência Artificial é a simulação de processos de inteligência humana por máquinas, especialmente sistemas computacionais.",
+                        "programação": "Processo de criar um conjunto de instruções que dizem ao computador como executar uma tarefa.",
+                        "internet": "Sistema global de redes de computadores interconectadas que usam o protocolo TCP/IP.",
+                        "blockchain": "Tecnologia de registro distribuído que mantém um registro permanente e à prova de violação de transações.",
+                        "quantum": "Computação quântica usa qubits que podem existir em múltiplos estados simultaneamente, permitindo processamento paralelo massivo."
+                    },
+                    
+                    geography: {
+                        "países": "Existem 195 países no mundo. Os maiores são Rússia, Canadá, China, EUA e Brasil.",
+                        "oceanos": "Cinco oceanos: Pacífico, Atlântico, Índico, Ártico e Antártico. Pacífico é o maior e mais profundo.",
+                        "montanhas": "Monte Everest é o mais alto (8.848m). Cordilheira dos Andes é a mais longa (7.000km).",
+                        "rios": "Amazonas é o maior rio em volume. Nilo é o mais longo (6.650km)."
+                    },
+                    
+                    culture: {
+                        "cinema": "Indústria cinematográfica começou no final do século XIX. Hollywood é o centro principal.",
+                        "música": "Arte de combinar sons no tempo. Inclui gêneros como clássica, pop, rock, jazz, eletrônica.",
+                        "arte": "Expressão humana criativa em formas visuais como pintura, escultura, arquitetura.",
+                        "literatura": "Arte da palavra escrita. Inclui poesia, prosa, drama, ficção e não-ficção."
+                    }
+                };
+            }
+            
+            // Analisa a pergunta e gera uma resposta inteligente
+            generateResponse(question) {
+                const lowerQuestion = question.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                let response = "";
+                let category = "";
+                
+                // Detectar categoria da pergunta
+                if (this.containsAny(lowerQuestion, ["basquete", "nba", "cesta", "jogador", "quadra", "lebron", "jordan", "curry"])) {
+                    category = "Basquete";
+                    response = this.answerBasketballQuestion(lowerQuestion);
+                } else if (this.containsAny(lowerQuestion, ["ciência", "física", "química", "biologia", "matemática", "einstein", "átomo"])) {
+                    category = "Ciência";
+                    response = this.answerScienceQuestion(lowerQuestion);
+                } else if (this.containsAny(lowerQuestion, ["história", "guerra", "império", "rei", "rainha", "antigo", "idade média"])) {
+                    category = "História";
+                    response = this.answerHistoryQuestion(lowerQuestion);
+                } else if (this.containsAny(lowerQuestion, ["tecnologia", "computador", "programação", "internet", "ai", "software", "aplicativo"])) {
+                    category = "Tecnologia";
+                    response = this.answerTechQuestion(lowerQuestion);
+                } else if (this.containsAny(lowerQuestion, ["geografia", "país", "cidade", "rio", "montanha", "mapa", "capital"])) {
+                    category = "Geografia";
+                    response = this.answerGeographyQuestion(lowerQuestion);
+                } else if (this.containsAny(lowerQuestion, ["arte", "música", "cinema", "filme", "livro", "pintura", "cultural"])) {
+                    category = "Cultura";
+                    response = this.answerCultureQuestion(lowerQuestion);
+                } else {
+                    category = "Geral";
+                    response = this.answerGeneralQuestion(lowerQuestion);
+                }
+                
+                return { response, category };
+            }
+            
+            // Métodos específicos para cada categoria
+            answerBasketballQuestion(question) {
+                if (question.includes("regra")) {
+                    return this.knowledgeBase.basketball.regras + " O jogo tem 4 quartos de 10-12 minutos. Vence quem fizer mais pontos.";
+                } else if (question.includes("nba")) {
+                    return this.knowledgeBase.basketball.nba + " A liga tem 30 times divididos em Conferências Leste e Oeste.";
+                } else if (question.includes("jogador") || question.includes("melhor")) {
+                    return this.knowledgeBase.basketball.jogadores + " Michael Jordan é frequentemente considerado o maior de todos os tempos.";
+                } else if (question.includes("time") || question.includes("equipe")) {
+                    return this.knowledgeBase.basketball.times + " Os Lakers e Celtics são as franquias mais bem-sucedidas.";
+                } else if (question.includes("história") || question.includes("criado")) {
+                    return this.knowledgeBase.basketball.história + " O esporte se espalhou rapidamente e se tornou olímpico em 1936.";
+                } else {
+                    return "No basquete, os pontos são marcados através de cestas (2 ou 3 pontos) e lances livres (1 ponto). A NBA é a liga mais popular, com grandes astros como LeBron James e Stephen Curry. Posso responder perguntas específicas sobre times, jogadores, regras ou história!";
+                }
+            }
+            
+            answerScienceQuestion(question) {
+                if (question.includes("física") || question.includes("relatividade")) {
+                    return this.knowledgeBase.science.física + " " + this.knowledgeBase.science.einstein;
+                } else if (question.includes("química")) {
+                    return this.knowledgeBase.science.química + " Estuda elementos, compostos, átomos, moléculas e suas transformações.";
+                } else if (question.includes("biologia")) {
+                    return this.knowledgeBase.science.biologia + " Inclui botânica, zoologia, microbiologia, genética e ecologia.";
+                } else if (question.includes("astronomia")) {
+                    return this.knowledgeBase.science.astronomia + " Estuda planetas, estrelas, galáxias e o universo como um todo.";
+                } else {
+                    return "A ciência é o esforço para descobrir e aumentar o conhecimento humano através de pesquisa e experimentação. Inclui física, química, biologia, astronomia e muitas outras disciplinas. O método científico é a base para investigações científicas.";
+                }
+            }
+            
+            answerHistoryQuestion(question) {
+                if (question.includes("segunda guerra") || question.includes("2 guerra")) {
+                    return this.knowledgeBase.history["segunda guerra"] + " Envolveu a maioria das nações do mundo, incluindo todas as grandes potências.";
+                } else if (question.includes("brasil")) {
+                    return this.knowledgeBase.history.brasil + " Foi colônia portuguesa por 322 anos antes da independência.";
+                } else if (question.includes("roma") || question.includes("romano")) {
+                    return this.knowledgeBase.history.roma + " Deixou legado duradouro em governo, direito, engenharia e arte.";
+                } else if (question.includes("egito")) {
+                    return this.knowledgeBase.history.egito + " Desenvolveu escrita, agricultura, urbanização e religião organizada.";
+                } else {
+                    return "A história estuda o passado humano através de registros escritos, arqueológicos e outras fontes. Ajuda a entender como sociedades evoluíram e como eventos passados moldam o presente.";
+                }
+            }
+            
+            answerTechQuestion(question) {
+                if (question.includes("inteligência artificial") || question.includes(" ia ") || question.includes("ai")) {
+                    return this.knowledgeBase.technology.ia + " Inclui aprendizado de máquina, processamento de linguagem natural, visão computacional e robótica.";
+                } else if (question.includes("programação") || question.includes("código")) {
+                    return this.knowledgeBase.technology.programação + " Linguagens populares incluem JavaScript, Python, Java, C++ e muitas outras.";
+                } else if (question.includes("internet")) {
+                    return this.knowledgeBase.technology.internet + " Desenvolvida a partir da ARPANET nos anos 1960, revolucionou a comunicação global.";
+                } else if (question.includes("blockchain")) {
+                    return this.knowledgeBase.technology.blockchain + " É a tecnologia por trás de criptomoedas como Bitcoin, mas tem aplicações muito mais amplas.";
+                } else {
+                    return "A tecnologia refere-se à aplicação do conhecimento científico para fins práticos. Inclui computação, engenharia, biotecnologia e muitas outras áreas que transformam nossa sociedade.";
+                }
+            }
+            
+            answerGeographyQuestion(question) {
+                if (question.includes("país") || question.includes("nação")) {
+                    return this.knowledgeBase.geography.países + " O Brasil é o 5º maior país em área e o 6º em população.";
+                } else if (question.includes("oceano") || question.includes("mar")) {
+                    return this.knowledgeBase.geography.oceanos + " Cobrem cerca de 71% da superfície da Terra.";
+                } else if (question.includes("montanha") || question.includes("monte")) {
+                    return this.knowledgeBase.geography.montanhas + " As montanhas se formam através de processos tectônicos e vulcânicos.";
+                } else if (question.includes("rio")) {
+                    return this.knowledgeBase.geography.rios + " Os rios são cruciais para ecossistemas, transporte e abastecimento de água.";
+                } else {
+                    return "A geografia estuda a Terra, suas características, habitantes e fenômenos. Divide-se em geografia física (ambiente natural) e humana (sociedades e culturas).";
+                }
+            }
+            
+            answerCultureQuestion(question) {
+                if (question.includes("cinema") || question.includes("filme")) {
+                    return this.knowledgeBase.culture.cinema + " Os Oscars são os prêmios mais prestigiados da indústria.";
+                } else if (question.includes("música") || question.includes("canção")) {
+                    return this.knowledgeBase.culture.música + " Existe em todas as culturas humanas, com funções ritualísticas, de entretenimento e artísticas.";
+                } else if (question.includes("arte") || question.includes("pintura")) {
+                    return this.knowledgeBase.culture.arte + " Inclui movimentos como Renascimento, Impressionismo, Modernismo e Contemporâneo.";
+                } else if (question.includes("literatura") || question.includes("livro")) {
+                    return this.knowledgeBase.culture.literatura + " Grandes obras literárias refletem e influenciam suas sociedades.";
+                } else {
+                    return "A cultura engloba os comportamentos, crenças, valores, símbolos e produtos materiais compartilhados por uma sociedade. Inclui arte, música, literatura, cinema, tradições e muito mais.";
+                }
+            }
+            
+            answerGeneralQuestion(question) {
+                const generalResponses = [
+                    "Interessante pergunta! Baseado no que sei, posso dizer que esse é um tópico fascinante que envolve múltiplas perspectivas.",
+                    "Essa é uma excelente questão. Dependendo do contexto, há várias formas de abordar esse assunto.",
+                    "Com base no meu conhecimento, posso explicar que isso varia conforme diferentes fatores e circunstâncias.",
+                    "Para responder adequadamente, precisaria de mais contexto, mas posso compartilhar informações gerais sobre o tema.",
+                    "Isso me lembra conceitos importantes que estudamos em várias áreas do conhecimento. Posso elaborar mais se você especificar sua dúvida.",
+                    "Que pergunta instigante! Esse assunto conecta-se a muitos campos diferentes do saber humano."
+                ];
+                
+                return generalResponses[Math.floor(Math.random() * generalResponses.length)] + " Se você fizer uma pergunta mais específica, posso dar uma resposta mais detalhada!";
+            }
+            
+            // Utilitário para verificar se a string contém qualquer uma das palavras
+            containsAny(str, words) {
+                return words.some(word => str.includes(word));
+            }
+        }
+
+        // Inicializar a IA
+        const ai = new UniversalAI();
+
+        // Elementos do DOM
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const suggestionButtons = document.querySelectorAll('.suggestion');
+
+        // Função para adicionar mensagem ao chat
+        function addMessage(message, isUser, category = "") {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${isUser ? 'user-bubble' : 'bot-bubble'}`;
+            
+            if (!isUser && category) {
+                bubble.innerHTML = `<span class="info-tag">${category}</span> ${message}`;
+            } else {
+                bubble.textContent = message;
+            }
+            
+            messageDiv.appendChild(bubble);
+            chatContainer.insertBefore(messageDiv, typingIndicator);
+            
+            // Rolar para a última mensagem
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Função para simular digitação
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Função para esconder indicador de digitação
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        // Função para enviar mensagem
+        function sendMessage() {
+            const question = userInput.value.trim();
+            
+            if (question === '') return;
+            
+            // Adicionar mensagem do usuário
+            addMessage(question, true);
+            
+            // Limpar campo de entrada
+            userInput.value = '';
+            
+            // Mostrar indicador de digitação
+            showTypingIndicator();
+            
+            // Simular tempo de processamento
+            setTimeout(() => {
+                hideTypingIndicator();
+                
+                // Processar pergunta e obter resposta
+                const { response, category } = ai.generateResponse(question);
+                
+                // Adicionar resposta do bot
+                addMessage(response, false, category);
+            }, 1500);
+        }
+
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Adicionar eventos aos botões de sugestão
+        suggestionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const question = button.getAttribute('data-question');
+                userInput.value = question;
+                sendMessage();
+            });
+        });
+
+        // Mensagem inicial após um breve delay
+        setTimeout(() => {
+            addMessage("Experimente fazer perguntas sobre qualquer assunto - basquete, ciência, história, tecnologia, geografia, cultura ou qualquer outro tema que você quiser explorar!", false, "Sistema");
+        }, 1000);
+    </script>
+</body>
+</html>
